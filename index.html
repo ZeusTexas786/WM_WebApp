@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WebMonkie: AI Recruiting Platform</title>
+    <meta
+      name="description"
+      content="WebMonkie automates candidate sourcing, matching, outreach, and scheduling for modern hiring teams."
+    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="WebMonkie homepage">
+        <span class="brand-mark" aria-hidden="true"><span></span></span>
+        <span>WebMonkie</span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <div class="nav-item has-menu">
+          <button type="button" aria-haspopup="true">Features <span aria-hidden="true">v</span></button>
+          <div class="mega-menu">
+            <div>
+              <p>Core Features</p>
+              <a href="#sourcing"><strong>AI Candidate Sourcing</strong><span>Search across 850M+ profiles</span></a>
+              <a href="#matching"><strong>AI Recruiting Agent</strong><span>Runs your desk autonomously</span></a>
+              <a href="#outreach"><strong>Automated Outreach</strong><span>Email, LinkedIn, and SMS sequences</span></a>
+            </div>
+            <div>
+              <p>Workflow</p>
+              <a href="#inbox"><strong>Multi-Channel Inbox</strong><span>Every reply in one place</span></a>
+              <a href="#scheduling"><strong>Interview Scheduling</strong><span>Books candidates automatically</span></a>
+              <a href="#security"><strong>Security</strong><span>Compliance and trust controls</span></a>
+            </div>
+            <div class="menu-callout">
+              <span>Free with every plan</span>
+              <strong>Start with 50 sourced candidates every month.</strong>
+              <a class="text-link" href="#pricing">See plans</a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-item has-menu">
+          <button type="button" aria-haspopup="true">Built For <span aria-hidden="true">v</span></button>
+          <div class="mega-menu compact">
+            <a href="#use-cases"><strong>Hiring Managers</strong><span>Source from the tools you already use</span></a>
+            <a href="#use-cases"><strong>Founders</strong><span>Hire your first twenty people</span></a>
+            <a href="#use-cases"><strong>Recruiting Teams</strong><span>Full desk orchestration</span></a>
+            <a href="#use-cases"><strong>Agencies</strong><span>Multi-client workspaces</span></a>
+          </div>
+        </div>
+        <a href="#customers">Customers</a>
+        <a href="#insights">Blog</a>
+        <a href="#pricing">Pricing</a>
+      </nav>
+
+      <div class="header-actions">
+        <a class="sign-in" href="#trial">Sign in</a>
+        <button class="btn secondary open-demo" type="button">Book a Demo</button>
+        <button class="btn primary open-trial" type="button">Try For Free</button>
+        <button class="menu-button" type="button" aria-label="Open menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </header>
+
+    <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+      <div class="mobile-menu-inner">
+        <a href="#features">Features</a>
+        <a href="#use-cases">Built For</a>
+        <a href="#customers">Customers</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#security">Security</a>
+        <button class="btn primary open-trial" type="button">Try For Free</button>
+      </div>
+    </div>
+
+    <main id="top">
+      <section class="hero section-pad">
+        <div class="hero-copy">
+          <h1>The AI Recruiting Platform That Fills Your <span>Pipeline</span> While You Sleep.</h1>
+          <p>
+            AI recruiting tools that automate candidate sourcing, screening, outreach, and scheduling
+            across 850M+ profiles. Built for recruiters, agencies, and hiring teams.
+          </p>
+          <div class="cta-row">
+            <button class="btn primary open-trial" type="button">Try For Free</button>
+            <button class="btn secondary open-demo" type="button">Book a Demo</button>
+          </div>
+          <div class="micro-proof">
+            <span>Free Trial</span>
+            <span>Expert Support</span>
+          </div>
+        </div>
+
+        <div class="hero-art" aria-label="WebMonkie product preview">
+          <div class="app-window hero-window">
+            <div class="window-sidebar">
+              <span class="mini-logo"></span>
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="window-main">
+              <div class="toolbar">
+                <span>Sourced by WebMonkie</span>
+                <span>Auto-Outreach</span>
+                <span>Default view</span>
+              </div>
+              <div class="candidate-table">
+                <div class="candidate-row highlighted">
+                  <span class="avatar gradient-a"></span>
+                  <div><strong>Alice Bennett</strong><small>Staff ML Engineer</small></div>
+                  <span>96%</span>
+                  <span>Ready</span>
+                </div>
+                <div class="candidate-row">
+                  <span class="avatar gradient-b"></span>
+                  <div><strong>Marco Ortiz</strong><small>Demand Gen Lead</small></div>
+                  <span>92%</span>
+                  <span>Queued</span>
+                </div>
+                <div class="candidate-row">
+                  <span class="avatar gradient-c"></span>
+                  <div><strong>Priya Raman</strong><small>Security Architect</small></div>
+                  <span>89%</span>
+                  <span>Drafted</span>
+                </div>
+                <div class="candidate-row muted-row">
+                  <span class="avatar gradient-d"></span>
+                  <div><strong>Jordan Lee</strong><small>Healthcare Ops</small></div>
+                  <span>86%</span>
+                  <span>Follow-up</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="demo-pill open-demo" type="button">
+            <span aria-hidden="true"></span>
+            Watch 2 min demo
+          </button>
+          <img
+            class="hero-face"
+            src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80"
+            alt="Recruiting leader smiling"
+          >
+          <div class="logo-cloud" aria-label="Customer logos">
+            <span>Aster</span>
+            <span>Lithic</span>
+            <span>Paytient</span>
+            <span>Northstar</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="candidate-search" id="features" aria-label="Candidate search demo">
+        <div class="search-shell">
+          <label for="candidatePrompt">type your ideal candidate here or paste job description</label>
+          <div class="search-bar">
+            <span aria-hidden="true">+</span>
+            <input
+              id="candidatePrompt"
+              value="Marketing Manager with B2B SaaS background, strong demand generation"
+              aria-label="Candidate search prompt"
+            >
+            <button class="btn violet" type="button">Find Candidates</button>
+          </div>
+          <div class="orbit-field" aria-hidden="true">
+            <span class="dot dot-lg"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot dot-lg"></span>
+            <span class="profile p1"></span>
+            <span class="profile p2"></span>
+            <span class="profile p3"></span>
+            <span class="profile p4"></span>
+          </div>
+          <p>
+            WebMonkie filters through 850 million profiles with one click, cutting through the
+            noise to deliver a curated list of matches tailored to your business goals.
+          </p>
+        </div>
+      </section>
+
+      <section class="feature-runway" id="sourcing">
+        <div class="workflow-bar" aria-label="Workflow stages">
+          <button class="is-active" type="button">Auto-Sourcing</button>
+          <button type="button">AI Insights</button>
+          <button type="button">Outreach Sequence</button>
+          <button type="button">Multi-Channel Inbox</button>
+          <button type="button">Interview Scheduling</button>
+        </div>
+
+        <article class="feature-block">
+          <div class="feature-visual sourcing-visual">
+            <div class="source-card small-card one">
+              <strong>James Hall</strong>
+              <span>Senior Software Engineer</span>
+            </div>
+            <div class="source-card small-card two">
+              <strong>Nia McCall</strong>
+              <span>Growth Marketing Lead</span>
+            </div>
+            <div class="score-strip">
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+          <div class="feature-copy">
+            <h2>AI Candidate Sourcing That Finds Talent <em>Fast</em>.</h2>
+            <p>AI candidate sourcing from 850M+ profiles. No more scrolling through single-source search tools.</p>
+            <dl>
+              <dt>Instant Shortlists</dt>
+              <dd>Paste a job description and get a ranked candidate list in seconds.</dd>
+              <dt>Deep Analysis</dt>
+              <dd>AI candidate matching ranks talent by fit, not just keywords.</dd>
+              <dt>Real-Time Refinement</dt>
+              <dd>Adjust criteria and watch your pipeline update instantly.</dd>
+            </dl>
+          </div>
+        </article>
+
+        <article class="feature-block flipped" id="matching">
+          <div class="feature-visual insight-visual">
+            <div class="analysis-card">
+              <span>Ask AI questions</span>
+              <strong>Why is this person a strong fit?</strong>
+              <p>Matches seniority, healthcare AI exposure, and recent team-building signals.</p>
+            </div>
+            <div class="radar-card">
+              <span></span><span></span><span></span>
+              <strong>94%</strong>
+            </div>
+          </div>
+          <div class="feature-copy">
+            <h2>AI Candidate Matching Beyond the Resume.</h2>
+            <p>Surface the skills, patterns, and career signals that actually matter.</p>
+            <dl>
+              <dt>Decision-Ready Insights</dt>
+              <dd>WebMonkie summarizes exactly why a candidate is or is not a match.</dd>
+              <dt>Unbiased Evaluation</dt>
+              <dd>Skills-based evaluation across multiple sources reveals full potential.</dd>
+              <dt>Automate Decisions</dt>
+              <dd>Top qualified candidates can move into outreach automatically.</dd>
+            </dl>
+          </div>
+        </article>
+
+        <article class="feature-block" id="outreach">
+          <div class="feature-visual outreach-visual">
+            <div class="mail-sequence">
+              <span>LinkedIn invite</span>
+              <span>Email 1</span>
+              <span>Follow-up</span>
+              <span>SMS nudge</span>
+            </div>
+            <div class="message-card">
+              <strong>Personalized opener</strong>
+              <p>I noticed your platform work in healthcare automation and thought this role might fit.</p>
+            </div>
+          </div>
+          <div class="feature-copy">
+            <h2>Automated Candidate Outreach on Autopilot.</h2>
+            <p>Automated candidate outreach that earns replies instead of getting ignored.</p>
+            <dl>
+              <dt>Multi-Channel Engagement</dt>
+              <dd>Connect via InMail, email, text, and custom workflows.</dd>
+              <dt>Smart Suggestions</dt>
+              <dd>AI-powered proofreading and edits help improve response rates.</dd>
+              <dt>Set It and Let It Run</dt>
+              <dd>Launch full outreach sequences with one click.</dd>
+            </dl>
+          </div>
+        </article>
+
+        <article class="feature-block flipped" id="inbox">
+          <div class="feature-visual inbox-visual">
+            <div class="inbox-list">
+              <span>Katie Sims</span>
+              <span>Ronald Richards</span>
+              <span>James Hall</span>
+              <span>Brooklyn Simmons</span>
+            </div>
+            <div class="reply-card">
+              <strong>Reply drafted</strong>
+              <p>Thanks for your interest. Can we lock in Thursday afternoon?</p>
+              <button type="button">Send</button>
+            </div>
+          </div>
+          <div class="feature-copy">
+            <h2>Never Drop the Ball in Inbox Chaos.</h2>
+            <p>One unified inbox for your entire hiring team.</p>
+            <dl>
+              <dt>AI Drafting</dt>
+              <dd>WebMonkie learns your style and drafts ready-to-send replies.</dd>
+              <dt>Total Visibility</dt>
+              <dd>Full history of every candidate interaction in one place.</dd>
+              <dt>Collaborative Hiring</dt>
+              <dd>Real-time updates and shared tools speed up team decisions.</dd>
+            </dl>
+          </div>
+        </article>
+
+        <article class="feature-block" id="scheduling">
+          <div class="feature-visual schedule-visual">
+            <div class="calendar-card">
+              <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span>
+              <b></b><b class="open"></b><b></b><b class="open"></b><b></b>
+              <b></b><b></b><b class="open"></b><b></b><b class="open"></b>
+            </div>
+            <div class="booked-card">Interview booked at 2:30 PM</div>
+          </div>
+          <div class="feature-copy">
+            <h2>AI Interview Scheduling, Zero Back-and-Forth.</h2>
+            <p>AI interview scheduling that eliminates manual coordination.</p>
+            <dl>
+              <dt>Zero-Touch Scheduling</dt>
+              <dd>WebMonkie coordinates availability and books meetings automatically.</dd>
+              <dt>Calendar Aware</dt>
+              <dd>Respect team constraints, candidate time zones, and interviewer load.</dd>
+              <dt>Confirmed Follow-Up</dt>
+              <dd>Automatic reminders keep candidates and interviewers aligned.</dd>
+            </dl>
+          </div>
+        </article>
+      </section>
+
+      <section class="try-band" id="trial">
+        <h2>Try it for free</h2>
+        <p>Or join one of our daily demo sessions to see WebMonkie in action.</p>
+        <div class="cta-row centered">
+          <button class="btn primary open-trial" type="button">Try For Free</button>
+          <button class="btn secondary open-demo" type="button">Book a Demo</button>
+        </div>
+      </section>
+
+      <section class="testimonials section-pad" id="customers">
+        <div class="section-heading">
+          <h2>Hear it from our customers</h2>
+          <p>WebMonkie holds a 4.8/5 average rating across verified customer reviews.</p>
+        </div>
+        <div class="testimonial-grid">
+          <article class="testimonial-card large">
+            <div class="avatar-pair">
+              <span class="company-mark">S</span>
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=180&q=80" alt="Ben Caggia">
+            </div>
+            <blockquote>"I have not been this energized about a recruiting tool in years."</blockquote>
+            <cite>Ben Caggia<span>Advisor at Syelo</span></cite>
+          </article>
+          <article class="testimonial-card">
+            <div class="avatar-pair">
+              <span class="company-mark violet-bg">R</span>
+              <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=180&q=80" alt="Nick Patrick">
+            </div>
+            <blockquote>"WebMonkie supercharged our sourcing."</blockquote>
+            <cite>Nick Patrick<span>CEO and Co-founder</span></cite>
+          </article>
+          <article class="testimonial-card">
+            <div class="avatar-pair">
+              <span class="company-mark amber-bg">A</span>
+              <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=180&q=80" alt="Fahad Hassan">
+            </div>
+            <blockquote>"The speed and accuracy were unmatched."</blockquote>
+            <cite>Fahad Hassan<span>Co-founder at Range</span></cite>
+          </article>
+          <article class="testimonial-card">
+            <div class="avatar-pair">
+              <span class="company-mark green-bg">G</span>
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=180&q=80" alt="Miles Randle">
+            </div>
+            <blockquote>"We finally focus on the people side of hiring."</blockquote>
+            <cite>Miles Randle<span>Head of People and Talent</span></cite>
+          </article>
+          <article class="testimonial-card">
+            <div class="avatar-pair">
+              <span class="company-mark rose-bg">C</span>
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=180&q=80" alt="Ryan Levy">
+            </div>
+            <blockquote>"It finds candidates our old workflow never surfaced."</blockquote>
+            <cite>Ryan Levy<span>Managing Partner</span></cite>
+          </article>
+        </div>
+      </section>
+
+      <section class="use-cases section-pad" id="use-cases">
+        <div class="section-heading split">
+          <h2>Your recruiting automation, <span>supercharged.</span></h2>
+          <p>One system for sourcing, outreach, collaboration, and clean handoffs into your existing stack.</p>
+        </div>
+        <div class="case-grid">
+          <article>
+            <div class="case-visual channels"></div>
+            <h3>Reach candidates anywhere</h3>
+            <p>Engage talent where they are most active, across email, LinkedIn, phone, and custom workflows.</p>
+          </article>
+          <article>
+            <div class="case-visual scale"></div>
+            <h3>Scale without chaos</h3>
+            <p>Run one startup search or ten client pipelines with a workspace that stays organized.</p>
+          </article>
+          <article>
+            <div class="case-visual ats"></div>
+            <h3>Your ATS' best friend</h3>
+            <p>Integrate with your existing stack so data entry and collaboration are automatic.</p>
+          </article>
+          <article>
+            <div class="case-visual browser"></div>
+            <h3>Source while you browse</h3>
+            <p>Add promising people from LinkedIn and the web with one click.</p>
+          </article>
+          <article>
+            <div class="case-visual diverse"></div>
+            <h3>Build broader pipelines</h3>
+            <p>AI-assisted tools help hiring teams widen candidate pools and reduce sourcing bias.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="pricing section-pad" id="pricing">
+        <div class="section-heading centered">
+          <span class="eyebrow">Pricing</span>
+          <h2>Simple pricing. Unlimited potential.</h2>
+          <div class="billing-toggle" role="group" aria-label="Billing cycle">
+            <button type="button" data-billing="monthly">Monthly</button>
+            <button class="is-selected" type="button" data-billing="annual">Annual <span>20% off</span></button>
+          </div>
+        </div>
+        <div class="plan-grid">
+          <article class="plan-card">
+            <h3>Solo</h3>
+            <p class="price" data-monthly="$119" data-annual="$99">$99</p>
+            <span class="billing-note">/ month, billed annually</span>
+            <p>For individual recruiters getting started.</p>
+            <button class="btn secondary open-trial" type="button">Try For Free</button>
+            <ul>
+              <li>Single seat for solo recruiters</li>
+              <li>Unlimited job positions</li>
+              <li>500 contact lookup credits</li>
+              <li>AI sourcing and agents included</li>
+            </ul>
+          </article>
+          <article class="plan-card featured">
+            <span class="badge">Most Popular</span>
+            <h3>Professional</h3>
+            <p class="price" data-monthly="$179" data-annual="$149">$149</p>
+            <span class="billing-note">/ month, per user, billed annually</span>
+            <p>For agencies and hiring teams running multiple roles.</p>
+            <button class="btn primary open-trial" type="button">Try For Free</button>
+            <ul>
+              <li>AI sourcing and agents included</li>
+              <li>500 credits per seat each month</li>
+              <li>Team collaboration and shared inbox</li>
+              <li>Email, LinkedIn, and SMS sequences</li>
+            </ul>
+          </article>
+          <article class="plan-card">
+            <h3>Business</h3>
+            <p class="price" data-monthly="$299" data-annual="$249">$249</p>
+            <span class="billing-note">/ month, per user, billed annually</span>
+            <p>For growing recruiting orgs with custom workflows.</p>
+            <button class="btn secondary open-demo" type="button">Book a Demo</button>
+            <ul>
+              <li>Everything in Professional</li>
+              <li>1,500 credits per seat each month</li>
+              <li>Premium ATS integrations</li>
+              <li>Priority support and onboarding</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="compare-table" aria-label="Compare plans">
+          <div class="compare-row head">
+            <span>Feature</span><span>Solo</span><span>Professional</span><span>Business</span>
+          </div>
+          <div class="compare-row"><span>Active positions</span><span>Unlimited</span><span>Unlimited</span><span>Unlimited</span></div>
+          <div class="compare-row"><span>AI agents</span><span>Included</span><span>Included</span><span>Advanced</span></div>
+          <div class="compare-row"><span>Contact credits</span><span>500/mo</span><span>500/user</span><span>1,500/user</span></div>
+          <div class="compare-row"><span>ATS integration</span><span>Standard</span><span>Standard</span><span>Premium</span></div>
+          <div class="compare-row"><span>Dedicated manager</span><span>-</span><span>3+ users</span><span>Included</span></div>
+        </div>
+      </section>
+
+      <section class="faq section-pad" id="faq">
+        <div class="faq-intro">
+          <span class="eyebrow">Frequently asked</span>
+          <h2>Questions &amp; Answers</h2>
+          <p>Need more information?</p>
+          <button class="btn primary open-demo" type="button">Talk to a specialist</button>
+        </div>
+        <div class="faq-list">
+          <details open>
+            <summary>How is WebMonkie different from LinkedIn Recruiter?</summary>
+            <p>
+              LinkedIn Recruiter limits you to one platform. WebMonkie searches across multiple
+              sources, ranks candidates by fit, then handles outreach, follow-ups, and scheduling.
+            </p>
+          </details>
+          <details>
+            <summary>What makes WebMonkie better than other AI recruiting software?</summary>
+            <p>
+              Most tools cover one workflow. WebMonkie combines sourcing, screening, outreach,
+              inbox management, and scheduling in one platform.
+            </p>
+          </details>
+          <details>
+            <summary>How does automated candidate outreach work?</summary>
+            <p>
+              You set up a sequence once. WebMonkie personalizes messages, sends follow-ups, and
+              keeps replies in a unified inbox.
+            </p>
+          </details>
+          <details>
+            <summary>Does WebMonkie integrate with my ATS?</summary>
+            <p>
+              Yes. It is designed to sync candidates, notes, and activity with popular applicant
+              tracking systems.
+            </p>
+          </details>
+          <details>
+            <summary>Is WebMonkie a good fit for recruiting agencies?</summary>
+            <p>
+              Yes. Multi-client workspaces, shared inboxes, and automation help agencies scale
+              without adding extra manual coordination.
+            </p>
+          </details>
+        </div>
+      </section>
+
+      <section class="security section-pad" id="security">
+        <div class="section-heading">
+          <span class="eyebrow">Security &amp; Trust</span>
+          <h2>Enterprise-grade security, standard.</h2>
+          <p>Your data is encrypted at rest and in transit, with access controls enforced at every layer.</p>
+        </div>
+        <div class="trust-grid">
+          <article>
+            <span class="trust-icon">1</span>
+            <h3>SOC 2 ready controls</h3>
+            <p>Policies and controls are organized for the security reviews modern hiring teams expect.</p>
+            <a href="#trial">Read the report</a>
+          </article>
+          <article>
+            <span class="trust-icon violet-bg">2</span>
+            <h3>Encryption at rest and in transit</h3>
+            <p>Customer data is protected end to end, with granular permissioning and network safeguards.</p>
+          </article>
+          <article>
+            <span class="trust-icon green-bg">3</span>
+            <h3>Audited by a third party</h3>
+            <p>Independent review keeps the security posture visible and accountable.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="final-cta">
+        <h2>Ready to elevate your hiring game?</h2>
+        <p>Stop recruiting manually. Start hiring intelligently.</p>
+        <div class="cta-row centered">
+          <button class="btn secondary light open-demo" type="button">Book a Demo</button>
+          <button class="btn primary inverse open-trial" type="button">Try For Free</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <div>
+          <h3>Features</h3>
+          <a href="#sourcing">AI Candidate Sourcing</a>
+          <a href="#matching">AI Recruiting Agent</a>
+          <a href="#outreach">Automated Outreach</a>
+          <a href="#scheduling">AI Interview Scheduling</a>
+        </div>
+        <div>
+          <h3>Built For</h3>
+          <a href="#use-cases">Hiring Managers</a>
+          <a href="#use-cases">Founders</a>
+          <a href="#use-cases">Recruiting Teams</a>
+          <a href="#use-cases">Agencies</a>
+        </div>
+        <div>
+          <h3>Compare</h3>
+          <a href="#pricing">WebMonkie vs LinkedIn Recruiter</a>
+          <a href="#pricing">WebMonkie vs Noon AI</a>
+          <a href="#pricing">WebMonkie vs Humanly</a>
+        </div>
+        <div>
+          <h3>More</h3>
+          <a href="#customers">Customers</a>
+          <a href="#security">Trust Center</a>
+          <a href="#faq">Privacy Policy</a>
+          <a href="#trial">Docs &amp; Guides</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <a class="brand footer-brand" href="#top" aria-label="WebMonkie homepage">
+          <span class="brand-mark" aria-hidden="true"><span></span></span>
+          <span>WebMonkie</span>
+        </a>
+        <span>Copyright WebMonkie Recruiting, Inc.</span>
+        <div class="socials" aria-label="Social links">
+          <a href="#top">X</a>
+          <a href="#top">in</a>
+          <a href="#top">ig</a>
+          <a href="#top">fb</a>
+        </div>
+      </div>
+    </footer>
+
+    <aside class="cookie-card" id="cookieCard" aria-label="Cookie preferences">
+      <p>We use cookies and third-party services for analytics, personalization, and advertising. <a href="#faq">Privacy Policy</a></p>
+      <div>
+        <button class="cookie-accept" type="button">Accept</button>
+        <button class="cookie-optout" type="button">Opt Out</button>
+      </div>
+    </aside>
+
+    <dialog class="trial-dialog" id="trialDialog">
+      <form method="dialog">
+        <button class="dialog-close" value="cancel" aria-label="Close">x</button>
+        <h2>Try WebMonkie for free or book a demo</h2>
+        <p>No credit card required.</p>
+        <button class="oauth" type="button">Continue with Google</button>
+        <button class="oauth" type="button">Continue with Microsoft</button>
+        <span class="divider">or</span>
+        <label for="workEmail">Work email</label>
+        <input id="workEmail" type="email" placeholder="you@company.com">
+        <button class="btn primary" value="default">Continue</button>
+        <small>By continuing you accept WebMonkie's terms and privacy policy.</small>
+      </form>
+    </dialog>
+
+    <div class="mobile-sticky-cta">
+      <button class="btn secondary open-demo" type="button">Book a Demo</button>
+      <button class="btn primary open-trial" type="button">Try For Free</button>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

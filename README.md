@@ -1,9 +1,17 @@
 # WebMonkie
 
-Recruiting application with verified accounts, JD/rubric review, private resume uploads, queued analysis, candidate evidence and one-page PDFs, interview packs, and trial accounting.
+Recruiting workflow prototype: job-description review, fictional sample candidates, evidence-based candidate briefs, one-page PDFs and interview packs.
 
-**Release status: staging preparation.** Public production acceptance is pending actual Linux/container, SMTP, AI, isolation and backup/restore checks. Source publication is not a claim of production readiness. See [DEPLOYMENT.md](DEPLOYMENT.md).
+## Local preview
 
-Run `./START_LOCAL.ps1` and open `http://127.0.0.1:8000/register/`. See [LOCAL_DEMO.md](LOCAL_DEMO.md) for the synthetic walkthrough, live-service setup, and production requirements.
+Create a Python virtual environment, install requirements.txt, set AI_MAX_DAILY_REQUESTS=0 for no-cost sample testing, and run START_LOCAL.ps1 on Windows. Open http://127.0.0.1:8000/register/ and choose Sample walkthrough when creating a session.
 
-The original static marketing prototype remains in `index.html`, `styles.css`, and `script.js`; it has not yet been connected to the new application or redesigned in 3D. Its marketing claims are not evidence of implemented capabilities.
+## Deployment status
+
+The Docker Compose files are staging drafts. Container builds, isolation, backups and public routing require environment-specific verification before production use. Keep lifecycle execution disabled until its operational checks pass.
+
+The Plesk proxy example replaces the root route; do not apply it to an existing marketing site. Preserve existing sites and review selective application routes before exposing the backend.
+
+Synthetic results demonstrate the workflow and do not establish live AI accuracy or hiring efficacy. Do not submit real candidate data to an unverified deployment.
+
+No credentials, account data or internal operational ledgers are included.

@@ -1,0 +1,1 @@
+{% extends 'recruiting/base.html' %}{% block content %}<section class="panel centered"><h1>Choose a new password.</h1>{% if validlink %}<form method="post">{% csrf_token %}{{ form.as_p }}<button class="button primary">Save password</button></form>{% else %}<p>This recovery link is invalid or expired.</p>{% endif %}</section>{% endblock %}

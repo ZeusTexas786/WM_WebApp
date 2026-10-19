@@ -1,0 +1,1 @@
+{% extends 'recruiting/base.html' %}{% block content %}<section class="panel centered"><h1>Recover access.</h1><p>Recovery requires configured SMTP. For privacy, account existence is never disclosed.</p><form method="post">{% csrf_token %}{{ form.as_p }}<button class="button primary">Request recovery email</button></form></section>{% endblock %}

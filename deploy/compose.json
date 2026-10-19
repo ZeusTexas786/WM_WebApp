@@ -1,0 +1,340 @@
+{
+  "name": "webmonkie",
+  "services": {
+    "web": {
+      "restart": "unless-stopped",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "pids_limit": 64,
+      "tmpfs": [
+        "/tmp:size=1536m,mode=1777"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "build": {
+        "context": "..",
+        "dockerfile": "deploy/Dockerfile",
+        "args": {
+          "PYTHON_IMAGE": "${PYTHON_IMAGE:?Set reviewed Python digest}"
+        }
+      },
+      "image": "webmonkie-app:local",
+      "user": "10001:10001",
+      "env_file": [
+        "${WEBMONKIE_ENV_FILE:?Set production environment path}"
+      ],
+      "volumes": [
+        "${WEBMONKIE_PRIVATE_DIR:?Set private directory}:/srv/webmonkie/private",
+        "parser_socket:/run/parser"
+      ],
+      "networks": [
+        "backend",
+        "egress"
+      ],
+      "mem_limit": "2g",
+      "cpus": "1.5",
+      "depends_on": {
+        "database": {
+          "condition": "service_healthy"
+        },
+        "parser": {
+          "condition": "service_started"
+        },
+        "scanner": {
+          "condition": "service_started"
+        }
+      },
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:8000/health/live/',headers={'Host':__import__('os').environ['ALLOWED_HOSTS'].split(',')[0]}),timeout=5)"
+        ],
+        "interval": "30s",
+        "timeout": "10s",
+        "retries": 3
+      }
+    },
+    "worker": {
+      "restart": "unless-stopped",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "pids_limit": 64,
+      "tmpfs": [
+        "/tmp:size=128m,mode=1777"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "build": {
+        "context": "..",
+        "dockerfile": "deploy/Dockerfile",
+        "args": {
+          "PYTHON_IMAGE": "${PYTHON_IMAGE:?Set reviewed Python digest}"
+        }
+      },
+      "image": "webmonkie-app:local",
+      "user": "10001:10001",
+      "env_file": [
+        "${WEBMONKIE_ENV_FILE:?Set production environment path}"
+      ],
+      "volumes": [
+        "${WEBMONKIE_PRIVATE_DIR:?Set private directory}:/srv/webmonkie/private",
+        "parser_socket:/run/parser"
+      ],
+      "networks": [
+        "backend",
+        "egress"
+      ],
+      "mem_limit": "768m",
+      "cpus": "1.5",
+      "depends_on": {
+        "database": {
+          "condition": "service_healthy"
+        },
+        "parser": {
+          "condition": "service_started"
+        },
+        "scanner": {
+          "condition": "service_started"
+        }
+      },
+      "command": [
+        "python",
+        "manage.py",
+        "worker"
+      ]
+    },
+    "parser": {
+      "restart": "unless-stopped",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "pids_limit": 32,
+      "tmpfs": [
+        "/tmp:size=128m,mode=1777"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "build": {
+        "context": "..",
+        "dockerfile": "deploy/parser.Dockerfile",
+        "args": {
+          "PYTHON_IMAGE": "${PYTHON_IMAGE:?Set reviewed Python digest}"
+        }
+      },
+      "user": "10001:10001",
+      "network_mode": "none",
+      "volumes": [
+        "parser_socket:/run/parser"
+      ],
+      "mem_limit": "640m",
+      "cpus": "1.0"
+    },
+    "gateway": {
+      "restart": "unless-stopped",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "pids_limit": 64,
+      "tmpfs": [
+        "/tmp:size=128m,mode=1777"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "image": "${NGINX_IMAGE:?Set reviewed nginx digest}",
+      "user": "101:101",
+      "ports": [
+        "127.0.0.1:8088:8080"
+      ],
+      "volumes": [
+        "./gateway.conf:/etc/nginx/nginx.conf:ro",
+        "static_assets:/static:ro"
+      ],
+      "networks": {
+        "backend": {
+          "ipv4_address": "172.30.0.2"
+        }
+      },
+      "depends_on": {
+        "web": {
+          "condition": "service_healthy"
+        }
+      },
+      "mem_limit": "192m"
+    },
+    "database": {
+      "image": "${POSTGRES_IMAGE:?Set reviewed PostgreSQL digest}",
+      "restart": "unless-stopped",
+      "environment": {
+        "POSTGRES_DB": "postgres",
+        "POSTGRES_USER": "postgres",
+        "POSTGRES_PASSWORD": "${POSTGRES_ADMIN_PASSWORD:?Set separate bootstrap password}",
+        "APP_DATABASE_PASSWORD": "${POSTGRES_PASSWORD:?Set restricted app password}"
+      },
+      "volumes": [
+        "postgres_data:/var/lib/postgresql",
+        "./init-app-db.sh:/docker-entrypoint-initdb.d/10-app.sh:ro"
+      ],
+      "networks": [
+        "backend"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "pg_isready -U postgres -d postgres"
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 6
+      },
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "mem_limit": "1g"
+    },
+    "scanner": {
+      "image": "${CLAMAV_IMAGE:?Set reviewed ClamAV digest}",
+      "restart": "unless-stopped",
+      "volumes": [
+        "clamav_data:/var/lib/clamav"
+      ],
+      "networks": [
+        "backend",
+        "scanner_updates"
+      ],
+      "mem_limit": "3g",
+      "pids_limit": 64,
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      }
+    },
+    "export_static": {
+      "restart": "no",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "pids_limit": 64,
+      "tmpfs": [
+        "/tmp:size=128m,mode=1777"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "build": {
+        "context": "..",
+        "dockerfile": "deploy/Dockerfile",
+        "args": {
+          "PYTHON_IMAGE": "${PYTHON_IMAGE:?Set reviewed Python digest}"
+        }
+      },
+      "image": "webmonkie-app:local",
+      "user": "10001:10001",
+      "env_file": [
+        "${WEBMONKIE_ENV_FILE:?Set production environment path}"
+      ],
+      "volumes": [
+        "static_assets:/export"
+      ],
+      "networks": [
+        "backend",
+        "egress"
+      ],
+      "mem_limit": "768m",
+      "cpus": "1.5",
+      "depends_on": {
+        "database": {
+          "condition": "service_healthy"
+        },
+        "parser": {
+          "condition": "service_started"
+        },
+        "scanner": {
+          "condition": "service_started"
+        }
+      },
+      "profiles": [
+        "maintenance"
+      ],
+      "command": [
+        "sh",
+        "-c",
+        "cp -R /opt/webmonkie/app/staticfiles/. /export/"
+      ]
+    }
+  },
+  "networks": {
+    "backend": {
+      "internal": true,
+      "ipam": {
+        "config": [
+          {
+            "subnet": "172.30.0.0/24"
+          }
+        ]
+      }
+    },
+    "egress": {},
+    "scanner_updates": {}
+  },
+  "volumes": {
+    "postgres_data": {},
+    "parser_socket": {},
+    "clamav_data": {},
+    "static_assets": {}
+  }
+}

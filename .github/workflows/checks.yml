@@ -1,0 +1,53 @@
+name: WebMonkie checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  postgres-and-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: library/postgres@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336
+        env:
+          POSTGRES_USER: wm_test
+          POSTGRES_PASSWORD: synthetic-ci-only-password
+          POSTGRES_DB: postgres
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U wm_test -d postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 6
+    steps:
+      - name: Fetch exact public source revision
+        env:
+          REPOSITORY: ${{ github.repository }}
+          REVISION: ${{ github.sha }}
+        run: |
+          [[ "$REVISION" =~ ^[0-9a-f]{40}$ ]]
+          git init .
+          git remote add origin "https://github.com/${REPOSITORY}.git"
+          git fetch --depth=1 origin "$REVISION"
+          git checkout --detach FETCH_HEAD
+      - name: Install pinned dependencies
+        run: |
+          python3 scripts/check_source.py
+          python3 -m venv .venv
+          .venv/bin/python -m pip install -r requirements-production.txt -r requirements-audit.txt
+      - name: Check database migrations and tests
+        env:
+          POSTGRES_TEST_PASSWORD: synthetic-ci-only-password
+        run: |
+          .venv/bin/python app/manage.py makemigrations --check --dry-run
+          mkdir -p .local
+          .venv/bin/python app/manage.py test recruiting.tests --settings=config.test_postgres --noinput
+      - name: Audit production dependencies
+        run: .venv/bin/python -m pip_audit -r requirements-production.txt --progress-spinner off
