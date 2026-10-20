@@ -5,7 +5,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Local environment file is never served or committed. Existing process values win.
 env_file = BASE_DIR.parent / '.env'
-if os.environ.get('DJANGO_SETTINGS_MODULE','config.settings') != 'config.production' and env_file.exists():
+if (os.environ.get('DJANGO_SETTINGS_MODULE','config.settings') == 'config.settings'
+        and os.environ.get('WEBMONKIE_LOCAL','1') == '1' and env_file.exists()):
     for line in env_file.read_text(encoding='utf-8').splitlines():
         if line.strip() and not line.lstrip().startswith('#') and '=' in line:
             key, value = line.split('=', 1)
@@ -62,8 +63,17 @@ AI_MAX_DAILY_REQUESTS = int(os.environ.get('AI_MAX_DAILY_REQUESTS','100'))
 RESEARCH_HOSTS = ('docs.python.org', 'docs.djangoproject.com', 'www.postgresql.org', 'developer.mozilla.org', 'react.dev', 'nodejs.org')
 TRUSTED_PROXY_NETWORKS=()
 LIFECYCLE_EXECUTION_ENABLED=False
+FIXTURE_PILOT=False
 SCANNER_HOST=''
 SCANNER_PORT=3310
 PARSER_SOCKET=''
 MAX_ACCOUNT_STORAGE_BYTES=300*1024*1024
 MAX_ACCOUNT_QUEUED_JOBS=30
+
+# Automatic workflow remains opt-in and zero-spend by default. Remote readiness
+# is supplied by an installed authenticated executor; a URL is insufficient.
+AUTOMATIC_WORKFLOW_ENABLED = os.environ.get('AUTOMATIC_WORKFLOW_ENABLED', '0') == '1'
+AUTOMATIC_TRANSPORT = os.environ.get('AUTOMATIC_TRANSPORT', 'disabled')
+AUTOMATIC_REMOTE_EXECUTOR = os.environ.get('AUTOMATIC_REMOTE_EXECUTOR', '')
+AUTOMATIC_PROJECT_STORAGE_BYTES = int(os.environ.get('AUTOMATIC_PROJECT_STORAGE_BYTES', str(5*1024**3)))
+AUTOMATIC_MIN_FREE_BYTES = int(os.environ.get('AUTOMATIC_MIN_FREE_BYTES', str(5*1024**3)))

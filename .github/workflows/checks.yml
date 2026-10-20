@@ -49,5 +49,7 @@ jobs:
           .venv/bin/python app/manage.py makemigrations --check --dry-run
           mkdir -p .local
           .venv/bin/python app/manage.py test recruiting.tests --settings=config.test_postgres --noinput
+      - name: Check upload queue cancellation behavior
+        run: node --test app/recruiting/tests/cloud_upload_browser.test.cjs
       - name: Audit production dependencies
         run: .venv/bin/python -m pip_audit -r requirements-production.txt --progress-spinner off

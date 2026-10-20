@@ -1,0 +1,7 @@
+{% autoescape off %}{% for paragraph in paragraphs %}{{ paragraph }}
+
+{% endfor %}View your session: {{ session_url }}
+
+— WebMonkie by AscendWorksNow
+https://ascendworksnow.com
+{% endautoescape %}

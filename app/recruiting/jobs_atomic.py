@@ -2,9 +2,9 @@ import secrets
 import time
 from datetime import timedelta
 from django.db import transaction,OperationalError
-from django.db.models import F
+from django.db.models import F, Sum
 from django.utils import timezone
-from .models import Job,HiringSession
+from .models import Job,HiringSession,CloudBatch
 from .coordination import lock_profile,locked_job
 
 def enqueue(candidate,rubric_version):
@@ -22,7 +22,8 @@ def enqueue(candidate,rubric_version):
                 if not profile.verified_at or timezone.now()>=profile.verified_at+timedelta(hours=72):
                     raise ValueError('Your three-day trial has ended. Existing results remain available.')
                 reserved=Job.objects.filter(candidate__session__owner_id=owner_id,reserved=True).count()
-                if profile.completed_credits+reserved>=30:
+                cloud_reserved=CloudBatch.objects.filter(owner_id=owner_id).aggregate(total=Sum('reserved_credits'))['total'] or 0
+                if profile.completed_credits+reserved+cloud_reserved>=30:
                     raise ValueError('All 30 trial briefs are used or reserved by queued jobs.')
                 if reserved>=30: raise ValueError('This account already has 30 queued or processing resumes. Wait for results before adding more.')
                 if job:

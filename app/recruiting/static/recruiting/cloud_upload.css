@@ -1,0 +1,8 @@
+.cloud-form { display: grid; gap: 1rem; max-width: 850px; }
+.cloud-form label { display: grid; gap: .5rem; font-weight: 600; }
+.cloud-form input, .cloud-form textarea { max-width: 100%; }
+.cloud-actions { display: flex; gap: .8rem; flex-wrap: wrap; }
+#cloud-progress { padding-left: 1.3rem; overflow-wrap: anywhere; }
+#cloud-progress li { margin: .6rem 0; }
+#cloud-error { color: #a32c24; overflow-wrap: anywhere; }
+.cloud-stage { max-width: 850px; margin-bottom: 1.5rem; }

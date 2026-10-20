@@ -1,0 +1,227 @@
+{
+  "name": "webmonkie-pilot",
+  "services": {
+    "web": {
+      "restart": "unless-stopped",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "pids_limit": 64,
+      "tmpfs": [
+        "/tmp:size=32m,mode=1777"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "build": {
+        "context": "..",
+        "dockerfile": "deploy/Dockerfile",
+        "args": {
+          "PYTHON_IMAGE": "${PYTHON_IMAGE:?Set reviewed Python digest}"
+        }
+      },
+      "image": "webmonkie-pilot:${WEBMONKIE_RELEASE:?Set immutable release identifier}",
+      "user": "10001:10001",
+      "env_file": [
+        "${WEBMONKIE_ENV_FILE:?Set production environment path}"
+      ],
+      "volumes": [
+        "${WEBMONKIE_PRIVATE_DIR:?Set private directory}:/srv/webmonkie/private"
+      ],
+      "networks": [
+        "backend",
+        "egress"
+      ],
+      "mem_limit": "256m",
+      "cpus": "0.75",
+      "depends_on": {
+        "database": {
+          "condition": "service_healthy"
+        }
+      },
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:8000/health/live/',headers={'Host':__import__('os').environ['ALLOWED_HOSTS'].split(',')[0]}),timeout=5)"
+        ],
+        "interval": "30s",
+        "timeout": "10s",
+        "retries": 3
+      },
+      "environment": {
+        "DJANGO_SETTINGS_MODULE": "config.pilot",
+        "WEBMONKIE_LOCAL": "0",
+        "AUTOMATIC_WORKFLOW_ENABLED": "1",
+        "AUTOMATIC_TRANSPORT": "fixtures",
+        "AI_MAX_DAILY_REQUESTS": "0",
+        "AI_API_KEY": "",
+        "AUTOMATIC_REMOTE_EXECUTOR": "",
+        "LIFECYCLE_EXECUTION_ENABLED": "0"
+      },
+      "ports": [
+        "127.0.0.1:8089:8000"
+      ],
+      "command": [
+        "gunicorn",
+        "config.wsgi:application",
+        "--bind",
+        "0.0.0.0:8000",
+        "--workers",
+        "1",
+        "--threads",
+        "2",
+        "--timeout",
+        "45",
+        "--worker-tmp-dir",
+        "/tmp",
+        "--max-requests",
+        "300",
+        "--max-requests-jitter",
+        "30",
+        "--error-logfile",
+        "-",
+        "--log-level",
+        "warning"
+      ]
+    },
+    "dispatcher": {
+      "restart": "unless-stopped",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "pids_limit": 32,
+      "tmpfs": [
+        "/tmp:size=32m,mode=1777"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "image": "webmonkie-pilot:${WEBMONKIE_RELEASE:?Set immutable release identifier}",
+      "user": "10001:10001",
+      "env_file": [
+        "${WEBMONKIE_ENV_FILE:?Set production environment path}"
+      ],
+      "volumes": [
+        "${WEBMONKIE_PRIVATE_DIR:?Set private directory}:/srv/webmonkie/private"
+      ],
+      "networks": [
+        "backend",
+        "egress"
+      ],
+      "mem_limit": "96m",
+      "cpus": "0.5",
+      "depends_on": {
+        "database": {
+          "condition": "service_healthy"
+        }
+      },
+      "environment": {
+        "DJANGO_SETTINGS_MODULE": "config.pilot",
+        "WEBMONKIE_LOCAL": "0",
+        "AUTOMATIC_WORKFLOW_ENABLED": "1",
+        "AUTOMATIC_TRANSPORT": "fixtures",
+        "AI_MAX_DAILY_REQUESTS": "0",
+        "AI_API_KEY": "",
+        "AUTOMATIC_REMOTE_EXECUTOR": "",
+        "LIFECYCLE_EXECUTION_ENABLED": "0"
+      },
+      "command": [
+        "python",
+        "manage.py",
+        "cloud_dispatcher",
+        "--limit",
+        "1",
+        "--sleep",
+        "5"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "python",
+          "manage.py",
+          "shell",
+          "-c",
+          "from django.utils import timezone; from datetime import timedelta; from recruiting.models import ServiceHeartbeat; assert ServiceHeartbeat.objects.filter(service='cloud_dispatcher',seen_at__gte=timezone.now()-timedelta(seconds=60)).exists()"
+        ],
+        "interval": "30s",
+        "timeout": "10s",
+        "start_period": "30s",
+        "retries": 3
+      }
+    },
+    "database": {
+      "image": "${POSTGRES_IMAGE:?Set reviewed PostgreSQL digest}",
+      "restart": "unless-stopped",
+      "environment": {
+        "POSTGRES_DB": "postgres",
+        "POSTGRES_USER": "postgres",
+        "POSTGRES_PASSWORD": "${POSTGRES_ADMIN_PASSWORD:?Set separate bootstrap password}",
+        "APP_DATABASE_PASSWORD": "${POSTGRES_PASSWORD:?Set restricted app password}"
+      },
+      "volumes": [
+        "postgres_data:/var/lib/postgresql",
+        "./init-app-db.sh:/docker-entrypoint-initdb.d/10-app.sh:ro"
+      ],
+      "networks": [
+        "backend"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "pg_isready -U postgres -d postgres"
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 6
+      },
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      },
+      "mem_limit": "192m",
+      "cpus": "0.5",
+      "pids_limit": 64,
+      "command": [
+        "postgres",
+        "-c",
+        "shared_buffers=32MB",
+        "-c",
+        "work_mem=2MB",
+        "-c",
+        "maintenance_work_mem=16MB",
+        "-c",
+        "max_connections=20"
+      ]
+    }
+  },
+  "networks": {
+    "backend": {
+      "internal": true
+    },
+    "egress": {}
+  },
+  "volumes": {
+    "postgres_data": {}
+  }
+}

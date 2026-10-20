@@ -1,0 +1,29 @@
+{% extends 'recruiting/base.html' %}{% load static %}
+{% block title %}WebMonkie · Automatic workflow{% endblock %}
+{% block crumb %}Hiring batch{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'recruiting/cloud_upload.css' %}">
+<script src="{% static 'recruiting/cloud_upload.js' %}" defer></script>
+<div class="page-heading"><div><p class="eyebrow">WEBMONKIES WORKSPACE</p><h1>{% if batch %}{{ batch.session.title }}{% else %}Start a hiring batch{% endif %}</h1></div></div>
+{% if synthetic %}<div class="notice">Synthetic demonstration. These fictional resumes and illustrative results test the workflow; no live assessment is performed.</div>{% endif %}
+{% if batch %}
+<section class="card cloud-stage" aria-live="polite"{% if processing %} data-status-url="/batches/{{ batch.pk }}/status/" data-stage="{{ batch.stage }}"{% endif %}><h2>{{ stage_label }}</h2><p>{{ input_count }} resume{{ input_count|pluralize }} received{% if batch.input_mode == 'zip' %}; archive count is checked after security validation{% endif %}.</p>
+{% if processing %}<p>The WebMonkies have your brief. You can leave and return to this page.</p>{% elif batch.stage == 'completed' %}<p>{% if result_references %}Your review is ready. Open a brief to explore the evidence and interview questions.{% else %}Your saved results are currently unavailable. Please contact support.{% endif %}</p>{% elif batch.stage == 'uploading' %}<p>Finish your uploads and click Submit to accept this batch.</p>{% else %}<p>This submission could not be completed. Your earlier results remain available in your dashboard.</p>{% endif %}
+{% if not synthetic and not live_available %}<p>Live processing is unavailable until remote execution is configured.</p>{% endif %}
+<ul>{% for item in batch.inputs.all %}<li>{{ item.filename }} — {% if item.uploaded_at %}Received{% else %}Upload incomplete{% endif %}</li>{% endfor %}</ul></section>
+{% if processing %}<script src="{% static 'recruiting/cloud_status.js' %}" defer></script>{% endif %}
+{% if result_references %}<section class="panel"><h2>Your candidate briefs</h2><ul class="batch-report-links">{% for ref in result_references %}<li><a href="/candidates/{{ ref.candidate_id }}/">{{ ref.candidate.filename }} <span aria-hidden="true">↗</span></a><a class="text-button" href="/candidates/{{ ref.candidate_id }}/pdf/">Download one-pager</a></li>{% endfor %}</ul></section>{% endif %}
+<p><a class="text-button" href="/dashboard/">← Back to your dashboard</a></p>
+{% if not batch.sealed_at and live_available %}<p>To resume an interrupted upload, reselect the same files below. Their digests must match.</p>{% endif %}
+{% endif %}
+{% if new or not batch.sealed_at %}
+{% if live_available %}
+<form id="cloud-intake" class="card cloud-form" data-batch="{{ batch.pk|default:'' }}">{% csrf_token %}
+{% if new %}<label>Role title<input name="title" maxlength="150" required></label><label>Paste job description<textarea name="jd" maxlength="30000" rows="6"></textarea></label>{% endif %}<label>Or upload one job description<input name="jd_file" type="file" accept=".txt,.pdf,.docx"></label>
+<label>Resumes (up to 30) or one ZIP<input name="resumes" type="file" multiple accept=".txt,.pdf,.docx,.zip" required></label><p>Each resume or JD: 10 MB maximum. Whole batch or ZIP: 300 MB maximum. Encrypted and nested archives are rejected during security validation.</p>
+<p class="muted">Your browser reads each file into memory to calculate its digest. Very large ZIPs may exceed your device’s memory; use individual resumes instead.</p>
+<div class="cloud-actions"><button type="button" id="cloud-upload">Upload files</button><button type="button" id="cloud-submit" disabled>Submit</button><button type="button" id="cloud-cancel">Cancel current upload</button></div><ul id="cloud-progress" aria-live="polite"></ul><p id="cloud-error" role="alert"></p></form>
+{% else %}<div class="notice">Live uploads are unavailable until remote execution is configured.</div>{% endif %}
+{% endif %}
+{% if sample_available %}<form id="cloud-sample" class="card">{% csrf_token %}<h2>Try the synthetic demonstration</h2><p>Use the built-in Python Backend Engineer role and three fictional resumes. This demonstrates the workflow.</p><button type="submit">Start synthetic demonstration</button><p role="alert"></p></form>{% endif %}
+{% endblock %}

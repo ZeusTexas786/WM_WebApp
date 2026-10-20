@@ -15,7 +15,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from .models import Profile, Verification, Throttle
+from .models import Profile, Verification, Throttle, DeletionTombstone
 
 class RegistrationForm(UserCreationForm):
     email = forms.EmailField(max_length=254)
@@ -54,6 +54,8 @@ def verified_required(view=None, *, track_activity=True):
             return redirect('/verify-pending/')
         with transaction.atomic():
             profile=Profile.objects.select_for_update().get(pk=profile.pk)
+            if DeletionTombstone.objects.filter(account_key=profile.account_key).exists():
+                return HttpResponse('This account is unavailable.',status=409)
             if profile.status in ('deleting','archiving'):
                 return HttpResponse('Your account storage is being maintained. Please try again shortly.',status=409)
             if profile.status=='archived' and request.path not in ('/account/','/account/restore/','/account/cancel/','/account/reactivate/','/account/export/'):

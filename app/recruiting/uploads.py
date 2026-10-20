@@ -3,7 +3,6 @@ import uuid
 from pathlib import Path
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Sum
 from .models import Candidate,HiringSession
 
 def store_upload(owner, session, upload):
@@ -27,7 +26,8 @@ def store_upload(owner, session, upload):
         except (ValueError, UnicodeError) as exc:
             raise ValueError('Use a readable UTF-8 text resume.') from exc
     digest = hashlib.sha256(content).hexdigest()
-    with transaction.atomic():
+    from .cloud.storage import storage_admission, check_storage_capacity
+    with storage_admission():
         from .coordination import lock_profile
         profile=lock_profile(owner.pk)
         session=HiringSession.objects.select_for_update().get(pk=session.pk,owner=owner)
@@ -35,9 +35,7 @@ def store_upload(owner, session, upload):
         existing = Candidate.objects.filter(session=session, digest=digest, rubric_version=session.rubric_version).first()
         if existing:
             return existing
-        retained=Candidate.objects.filter(session__owner=owner).aggregate(total=Sum('byte_size'))['total'] or 0
-        if retained+len(content)>settings.MAX_ACCOUNT_STORAGE_BYTES:
-            raise ValueError('Account storage limit reached. Remove documents or contact the operator.')
+        check_storage_capacity(owner.pk, len(content))
         root = Path(settings.PRIVATE_ROOT)
         folder = root / str(owner.pk) / str(session.pk)
         folder.mkdir(parents=True, exist_ok=True)

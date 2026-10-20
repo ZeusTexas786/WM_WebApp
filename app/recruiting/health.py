@@ -10,7 +10,10 @@ def live(request): return JsonResponse({'status':'alive'})
 def ready(request):
     try:
         with connection.cursor() as cursor: cursor.execute('SELECT 1')
-        if not settings.LOCAL_DEVELOPMENT:
+        if getattr(settings, 'FIXTURE_PILOT', False):
+            from .pilot import assert_fixture_ready
+            assert_fixture_ready()
+        elif not settings.LOCAL_DEVELOPMENT:
             from .models import ServiceHeartbeat
             from .scanning import scanner_ready
             import socket,struct,json

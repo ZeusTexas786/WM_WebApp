@@ -34,6 +34,16 @@ def schedule_lifecycle(now=None,dry_run=True):
     return proposals
 
 def fence_work(profile):
+    """DB-only invalidation. Caller holds the profile lock; never touch disk here."""
+    from .cloud.models import CloudBatch,CloudOutbox,StageAttempt
+    from .cloud.contracts import TERMINAL_STAGES
+    profile.account_epoch+=1
+    profile.save(update_fields=['account_epoch'])
+    batches=CloudBatch.objects.filter(owner_id=profile.user_id)
+    now=timezone.now()
+    batches.exclude(stage__in=TERMINAL_STAGES).update(stage='cancelled',error_code='account_inactive_or_epoch_changed',reserved_credits=0,finished_at=now)
+    StageAttempt.objects.filter(batch__owner_id=profile.user_id,state='running').update(state='cancelled',lease_token='',finished_at=now)
+    CloudOutbox.objects.filter(batch__owner_id=profile.user_id).exclude(state='delivered').update(state='cancelled',lease_token='',lease_until=None)
     Job.objects.filter(candidate__session__owner_id=profile.user_id).update(
         reserved=False,lease_token='',lease_until=None,interview_requested=False,
         interview_lease_token='',interview_lease_until=None)
@@ -77,14 +87,19 @@ def execute_action(action_id,now=None):
                 settings.DEFAULT_FROM_EMAIL,[email])
             if submitted!=1: raise ValueError('Notice not submitted')
         elif action.kind=='delete_account':
-            folder=account_folder(profile)
-            if folder.exists(): shutil.rmtree(folder)
+            from .cloud.storage import storage_admission
+            from .cloud.lifecycle import remove_account_trees,require_exports_closed,safe_path
             from .archives import archive_path
-            archive_path(profile).unlink(missing_ok=True)
-            base=Path(settings.PRIVATE_ROOT).resolve()/'.staging'
-            scratch=base/str(profile.account_key)
-            if base.is_symlink() or scratch.is_symlink(): raise ValueError('Unsafe scratch directory.')
-            if scratch.exists(): shutil.rmtree(scratch)
+            # Fencing committed above. Global admission now precedes all locks;
+            # byte declarations survive any unlink failure until a successful retry.
+            with storage_admission():
+                # Status='deleting' was committed before admission. Requests
+                # already streaming must close their named export before erase.
+                require_exports_closed(profile)
+                remove_account_trees(profile)
+                archive_path(profile).unlink(missing_ok=True)
+                scratch=safe_path(f'.staging/{profile.account_key}')
+                if scratch.exists(): shutil.rmtree(scratch)
         elif action.kind=='archive_data_keep_subscription':
             from .archives import archive_account
             archive_account(profile.pk)
@@ -114,12 +129,15 @@ def replay_tombstones(keys,now=None):
     execution_allowed()
     failures=[]
     for key in keys:
+        DeletionTombstone.objects.get_or_create(account_key=key,defaults={'deleted_at':now or timezone.now()})
         profile=Profile.objects.filter(account_key=key).first()
         if not profile: continue
         with transaction.atomic():
             profile=Profile.objects.select_for_update().get(pk=profile.pk)
             profile.cancelled_at=(now or timezone.now())-timedelta(days=3)
-            profile.save(update_fields=['cancelled_at'])
+            profile.status='deleting'
+            profile.save(update_fields=['cancelled_at','status'])
+            fence_work(profile)
         schedule_lifecycle(now,dry_run=False)
         for action in LifecycleAction.objects.filter(account=profile,kind='delete_account').exclude(state='done'):
             if execute_action(action.pk,now)!='done': failures.append(str(key))

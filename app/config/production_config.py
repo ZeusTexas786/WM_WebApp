@@ -5,8 +5,19 @@ import re
 from pathlib import Path
 from urllib.parse import urlsplit
 
-def load_production_config(environ):
+def load_production_config(environ, *, profile='full'):
+    if profile not in ('full', 'fixture_pilot'):
+        raise ValueError('Unknown production execution profile.')
+    pilot = profile == 'fixture_pilot'
     required=('DJANGO_SECRET_KEY','ALLOWED_HOSTS','PUBLIC_ORIGIN','POSTGRES_DB','POSTGRES_USER','POSTGRES_PASSWORD','POSTGRES_HOST','PRIVATE_ROOT','SMTP_HOST','SMTP_USER','SMTP_PASSWORD','SMTP_FROM','AI_API_KEY','SCANNER_HOST','PARSER_SOCKET','ARCHIVE_KEY','TRUSTED_PROXY_NETWORKS')
+    if pilot:
+        required = tuple(key for key in required if key not in ('AI_API_KEY','SCANNER_HOST','PARSER_SOCKET'))
+        if (environ.get('AUTOMATIC_WORKFLOW_ENABLED') != '1'
+                or environ.get('AUTOMATIC_TRANSPORT') != 'fixtures'
+                or environ.get('AI_MAX_DAILY_REQUESTS') != '0'
+                or environ.get('AUTOMATIC_REMOTE_EXECUTOR', '').strip()
+                or environ.get('LIFECYCLE_EXECUTION_ENABLED', '0') != '0'):
+            raise ValueError('Fixture pilot requires synthetic execution, zero AI allowance and disabled lifecycle.')
     if any(not environ.get(key,'').strip() for key in required):
         missing=', '.join(key for key in required if not environ.get(key,'').strip())
         raise ValueError('Missing production configuration: '+missing)
@@ -32,14 +43,20 @@ def load_production_config(environ):
         raise ValueError('Private production storage must be absolute and outside the source checkout.')
     networks=[ipaddress.ip_network(value.strip()) for value in environ['TRUSTED_PROXY_NETWORKS'].split(',')]
     if any(network.prefixlen==0 for network in networks): raise ValueError('Never trust all proxy addresses.')
-    return {
+    result = {
+        'FIXTURE_PILOT':pilot,
         'LOCAL_DEVELOPMENT':False,'DEBUG':False,'SECRET_KEY':secret,'ALLOWED_HOSTS':hosts,
         'PUBLIC_ORIGIN':environ['PUBLIC_ORIGIN'].rstrip('/'),'CSRF_TRUSTED_ORIGINS':[environ['PUBLIC_ORIGIN'].rstrip('/')],
         'DATABASES':{'default':{'ENGINE':'django.db.backends.postgresql','NAME':environ['POSTGRES_DB'],'USER':environ['POSTGRES_USER'],'PASSWORD':environ['POSTGRES_PASSWORD'],'HOST':environ['POSTGRES_HOST'],'PORT':environ.get('POSTGRES_PORT','5432'),'CONN_MAX_AGE':60,'CONN_HEALTH_CHECKS':True,'OPTIONS':{'connect_timeout':5}}},
         'PRIVATE_ROOT':root,'SESSION_COOKIE_SECURE':True,'CSRF_COOKIE_SECURE':True,
         'SECURE_SSL_REDIRECT':True,'SECURE_HSTS_SECONDS':31536000,'SECURE_HSTS_INCLUDE_SUBDOMAINS':True,'SECURE_HSTS_PRELOAD':False,
         'TRUSTED_PROXY_NETWORKS':tuple(str(network) for network in networks),
-        'SCANNER_HOST':environ['SCANNER_HOST'],'SCANNER_PORT':int(environ.get('SCANNER_PORT','3310')),'PARSER_SOCKET':environ['PARSER_SOCKET'],
+        'SCANNER_HOST':environ.get('SCANNER_HOST',''),'SCANNER_PORT':int(environ.get('SCANNER_PORT','3310')),'PARSER_SOCKET':environ.get('PARSER_SOCKET',''),
         'ARCHIVE_KEY':environ['ARCHIVE_KEY'],'LIFECYCLE_EXECUTION_ENABLED':environ.get('LIFECYCLE_EXECUTION_ENABLED','0')=='1',
         'SECURE_PROXY_SSL_HEADER':('HTTP_X_FORWARDED_PROTO','https'),
     }
+    if pilot:
+        result.update(AUTOMATIC_WORKFLOW_ENABLED=True, AUTOMATIC_TRANSPORT='fixtures',
+                      AUTOMATIC_REMOTE_EXECUTOR='', AI_API_KEY='', AI_MAX_DAILY_REQUESTS=0,
+                      SCANNER_HOST='', PARSER_SOCKET='', LIFECYCLE_EXECUTION_ENABLED=False)
+    return result

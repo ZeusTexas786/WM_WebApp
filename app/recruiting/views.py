@@ -9,6 +9,7 @@ from django.views.decorators.http import require_POST
 from .models import HiringSession, Profile, Candidate, Job, Preference
 from .forms import SessionForm
 from .accounts import verified_required
+from .cloud.storage import admission_view
 
 @verified_required
 def dashboard(request):
@@ -85,9 +86,12 @@ def confirm(request, pk):
     messages.success(request, 'Rubric confirmed. You can now add resumes. Existing reports keep their original rubric.')
     return redirect(f'/sessions/{session.pk}/')
 
+@admission_view
 @verified_required
 @require_POST
 def upload(request, pk):
+    if settings.AUTOMATIC_WORKFLOW_ENABLED:
+        return HttpResponseBadRequest('Use the private batch upload page at /batches/new/.')
     session = get_object_or_404(HiringSession, pk=pk, owner=request.user)
     if session.mode == 'sample':
         return HttpResponseBadRequest('Real resumes require a live session. Sample mode accepts only the built-in synthetic examples.')
@@ -106,6 +110,8 @@ def upload(request, pk):
 @verified_required
 def download(request, pk):
     candidate = get_object_or_404(Candidate, pk=pk, session__owner=request.user)
+    if candidate.cloud_results.exists():
+        return HttpResponse('Source downloads are unavailable for this workflow.', status=403)
     if not settings.LOCAL_DEVELOPMENT and candidate.scan_status!='clean':
         return HttpResponse('This document is quarantined until a successful security scan.',status=403)
     root = Path(settings.PRIVATE_ROOT).resolve()
@@ -117,9 +123,12 @@ def download(request, pk):
     response['Content-Type'] = 'application/octet-stream'
     return response
 
+@admission_view
 @verified_required
 @require_POST
 def sample(request,pk):
+    if settings.AUTOMATIC_WORKFLOW_ENABLED:
+        return HttpResponseBadRequest('Use the canonical synthetic demonstration at /batches/new/.')
     session=get_object_or_404(HiringSession,pk=pk,owner=request.user,mode='sample')
     if not session.confirmed_at: return HttpResponseBadRequest('Confirm the rubric first.')
     from .samples import SAMPLES
@@ -176,7 +185,10 @@ def report(request,pk):
     candidate=get_object_or_404(Candidate,pk=pk,session__owner=request.user)
     job=get_object_or_404(Job,candidate=candidate,status='completed')
     result=job.result
-    return render(request,'recruiting/report.html',{'candidate':candidate,'job':job,'result':result,'strengths':[e for e in result['evaluations'] if e['status']=='met'],'gaps':[e for e in result['evaluations'] if e['status']!='met'],'brief_criteria':result['evaluations'][:4]})
+    cloud_reference=candidate.cloud_results.filter(batch__owner=request.user,
+        batch__session_id=candidate.session_id,
+        batch__account_key=request.user.profile.account_key).first()
+    return render(request,'recruiting/report.html',{'candidate':candidate,'job':job,'result':result,'strengths':[e for e in result['evaluations'] if e['status']=='met'],'gaps':[e for e in result['evaluations'] if e['status']!='met'],'brief_criteria':result['evaluations'][:4], 'cloud_reference':cloud_reference, 'cloud_source':candidate.cloud_results.exists()})
 
 @verified_required
 def evidence(request,pk):

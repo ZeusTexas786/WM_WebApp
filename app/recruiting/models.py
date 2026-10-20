@@ -5,6 +5,7 @@ from django.utils import timezone
 
 class Profile(models.Model):
     account_key=models.UUIDField(default=uuid.uuid4,editable=False,unique=True)
+    account_epoch=models.PositiveBigIntegerField(default=1)
     archive_name=models.CharField(max_length=120,default='')
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     verified_at = models.DateTimeField(null=True, blank=True)
@@ -102,3 +103,6 @@ class Job(models.Model):
     interview_lease_until = models.DateTimeField(null=True)
     created_at = models.DateTimeField(default=timezone.now)
     completed_at = models.DateTimeField(null=True)
+
+# Register cloud records with Django; their foreign keys use lazy model names.
+from .cloud.models import CloudBatch, UploadReservation, StageAttempt, CloudOutbox, CloudResultReference
